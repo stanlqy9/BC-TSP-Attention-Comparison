@@ -79,5 +79,4 @@ Regenerate summary outputs:
 
 ```bash
 python Deliverables/scripts/generate_deliverables.py
-python Deliverables/scripts/create_professor_docx.py
 ```
