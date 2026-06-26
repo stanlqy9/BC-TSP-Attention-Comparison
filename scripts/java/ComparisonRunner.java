@@ -15,7 +15,7 @@ public class ComparisonRunner {
     private static Method traverseQ;
 
     public static void main(String[] args) throws Exception {
-        String outPath = args.length >= 1 ? args[0] : "Deliverables/raw/java_baselines.csv";
+        String outPath = args.length >= 1 ? args[0] : "../../raw/java_baselines.csv";
         int totalInstances = args.length >= 2 ? Integer.parseInt(args[1]) : DEFAULT_TOTAL_INSTANCES;
         int[] budgets = args.length >= 3 ? parseBudgets(args[2]) : DEFAULT_BUDGETS;
 

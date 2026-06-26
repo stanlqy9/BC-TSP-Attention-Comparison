@@ -15,17 +15,11 @@ DEFAULT_BUDGETS = [4000, 6000, 8000, 10000]
 DEFAULT_DEPOT_COUNT = 20
 
 
-def parse_args():
-    root = Path(__file__).resolve().parents[2]
-    attention_dir = root / "Attention-Learn-To-Route (Stanley Navarrete)" / "attention-learn-to-route-master"
-    return argparse.ArgumentParser().parse_args()
-
-
 def build_parser():
-    root = Path(__file__).resolve().parents[2]
-    attention_dir = root / "Attention-Learn-To-Route (Stanley Navarrete)" / "attention-learn-to-route-master"
+    root = Path(__file__).resolve().parents[1]
+    attention_dir = root / "source" / "attention-learn-to-route"
     parser = argparse.ArgumentParser(description="Run the Attention OP model on the BC-TSP comparison instances.")
-    parser.add_argument("--root", default=str(root), help="Workspace root.")
+    parser.add_argument("--root", default=str(root), help="Deliverables repository root.")
     parser.add_argument("--attention-dir", default=str(attention_dir), help="Attention model repository.")
     parser.add_argument("--python", default=sys.executable, help="Python executable with torch installed.")
     parser.add_argument("--budgets", default=",".join(str(b) for b in DEFAULT_BUDGETS))
@@ -33,10 +27,10 @@ def build_parser():
     parser.add_argument("--model", default="pretrained/op_dist_50")
     parser.add_argument("--decode-strategy", default="greedy", choices=["greedy", "sample", "bs"])
     parser.add_argument("--width", type=int, default=0, help="Sample/beam width. Use 0 for greedy.")
-    parser.add_argument("--out-csv", default=str(root / "Deliverables" / "raw" / "attention_results.csv"))
-    parser.add_argument("--dataset-out", default=str(root / "Deliverables" / "data" / "attention" / "attention_instances.pkl"))
-    parser.add_argument("--metadata-out", default=str(root / "Deliverables" / "data" / "attention" / "attention_instances.metadata.json"))
-    parser.add_argument("--results-out", default=str(root / "Deliverables" / "raw" / "attention_eval_results.pkl"))
+    parser.add_argument("--out-csv", default=str(root / "raw" / "attention_results.csv"))
+    parser.add_argument("--dataset-out", default=str(root / "data" / "attention" / "attention_instances.pkl"))
+    parser.add_argument("--metadata-out", default=str(root / "data" / "attention" / "attention_instances.metadata.json"))
+    parser.add_argument("--results-out", default=str(root / "raw" / "attention_eval_results.pkl"))
     return parser
 
 
@@ -227,7 +221,7 @@ def main():
     args = parser.parse_args()
     budgets = parse_budgets(args.budgets)
     root = Path(args.root)
-    city_path = root / "BCPCTSP-handoff-code" / "src" / "Capital_Cities.txt"
+    city_path = root / "source" / "java-bctsp" / "src" / "Capital_Cities.txt"
     cities = parse_cities(city_path)
     metadata = build_dataset(cities, budgets, args.depot_count, args.dataset_out, args.metadata_out)
     run_eval(args, len(metadata))

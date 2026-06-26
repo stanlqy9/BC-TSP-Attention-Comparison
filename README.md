@@ -1,82 +1,175 @@
-# BC-TSP Comparison Deliverables
+# BC-TSP Attention Comparison
 
-Stanley's Attention-based routing workflow compared with Chris Gonzalez's
-implemented Greedy 1, Greedy 2, and P-MARL baselines.
+This repository contains the final Fig. 14 plot files and the original source code used to generate the comparison data for P-MARL and the Attention/NCO routing model.
 
-## Scope
+## Final Paper Figures
 
-- Dataset: `Capital_Cities.txt`, 48 US state-capital nodes.
-- Instances: first 20 depot-city instances from Chris's `TableData.generateRandomCities` convention.
-- Budgets: 4000, 6000, 8000, and 10000 miles.
-- Algorithms included: Attention, Greedy 1, Greedy 2, P-MARL.
-- Algorithms intentionally excluded: Ant-Q and ILP, because Dr. Tang's direct request did not ask for them.
-- Prize metric: collected prize excluding depot prize.
-- Distance metric: Java `CityNode.java` Haversine-mile convention (`6371 km * 0.62 miles/km`).
+The paper-ready PDFs are:
 
-## Main Files
+- `figures/prize_collected_vs_budget_pmarl_attention.pdf`
+- `figures/training_time_vs_budget_pmarl_attention.pdf`
 
-- `summary/bctsp_comparison_summary.docx`: professor-facing Word summary.
-- `summary/final_email_draft.txt`: short draft email to send with the deliverables.
-- `summary/comparison_results.xlsx`: Excel workbook with summary, raw results, and manifest.
-- `summary/comparison_summary_by_budget.csv`: summary statistics by budget and algorithm.
-- `summary/comparison_raw_combined.csv`: all 320 per-instance result rows.
-- `figures/prize_vs_budget.svg`: mean collected prize plot.
-- `figures/distance_vs_budget.svg`: mean route distance plot.
-- `figures/runtime_vs_budget.svg`: mean runtime plot.
-- `raw/java_baselines.csv`: raw Greedy 1, Greedy 2, and P-MARL results.
-- `raw/attention_results.csv`: raw Attention results after feasibility repair.
+Both final plots compare only:
 
-## Notes
+- `Attention`
+- `P-MARL`
 
-The Attention model uses a normalized OP representation, so decoded routes were
-checked again with the same Java-mile Haversine distance used by Chris's code.
-When a raw Attention route exceeded the budget after this check, the route suffix
-was trimmed until it satisfied the same budget. The final CSV records both the
-raw Attention route distance and whether repair was applied.
+The final plot script reads:
 
-Chris's P-MARL implementation uses unseeded Java randomness during learning, so
-rerunning the Java wrapper can produce slightly different P-MARL rows. The CSV
-and workbook preserve the actual run used for this deliverable.
+- `summary/comparison_summary_by_budget.csv`
 
-The reviewer-scale 10,000-node request is not claimed as complete here. The
-attached code/data supports the 48-city and 10-city capital datasets, but no
-10,000-node BC-TSP benchmark dataset or generator was attached.
+## Repository Layout
 
-## Reproduction
-
-Compile the Java baselines from the workspace root:
-
-```bash
-javac -d Deliverables/build/java \
-  BCPCTSP-handoff-code/CityNode.java \
-  BCPCTSP-handoff-code/Graph.java \
-  BCPCTSP-handoff-code/Agent.java \
-  BCPCTSP-handoff-code/main.java \
-  BCPCTSP-handoff-code/TableData.java \
-  Deliverables/scripts/java/ComparisonRunner.java
+```text
+.
+├── figures/
+│   ├── fig14_generation_notes.txt
+│   ├── prize_collected_vs_budget_pmarl_attention.pdf
+│   └── training_time_vs_budget_pmarl_attention.pdf
+├── raw/
+│   ├── attention_results.csv
+│   └── java_baselines.csv
+├── scripts/
+│   ├── create_professor_plot_pdfs.py
+│   ├── generate_deliverables.py
+│   ├── run_attention_batch.py
+│   └── java/ComparisonRunner.java
+├── source/
+│   ├── attention-learn-to-route/
+│   └── java-bctsp/
+├── summary/
+│   ├── comparison_raw_combined.csv
+│   └── comparison_summary_by_budget.csv
+├── requirements.txt
+└── README.md
 ```
 
-Run the Java wrapper from Chris's repo folder because the handoff code expects
-`src/Capital_Cities.txt` relative to its current working directory:
+## Included Original Code
+
+- `source/java-bctsp/`: original Java BC-TSP code used for Greedy 1, Greedy 2, and P-MARL, plus the capital-city input files.
+- `source/attention-learn-to-route/`: Attention model source code, dependencies, and the `pretrained/op_dist_50` checkpoint used for the Attention runs.
+- `scripts/java/ComparisonRunner.java`: Java wrapper used to export Greedy/P-MARL rows to `raw/java_baselines.csv`.
+- `scripts/run_attention_batch.py`: Python wrapper used to convert the capital-city instances, run the Attention checkpoint, repair infeasible routes to the same Java-mile budget convention, and write `raw/attention_results.csv`.
+- `scripts/generate_deliverables.py`: combines raw Java and Attention rows into summary CSV files.
+- `scripts/create_professor_plot_pdfs.py`: generates the final professor-requested Fig. 14 PDFs.
+
+Compiled Java classes, Python caches, and intermediate pickle files are intentionally excluded.
+
+## Reproduce Final Figures Only
+
+From the repository root:
 
 ```bash
-cd BCPCTSP-handoff-code
-
-java -cp "$OLDPWD/Deliverables/build/java" ComparisonRunner \
-  "$OLDPWD/Deliverables/raw/java_baselines.csv" \
-  20 \
-  4000,6000,8000,10000
+python3 -m pip install -r requirements.txt
+python3 scripts/create_professor_plot_pdfs.py
 ```
 
-Run the Attention batch with a Python environment that has the Attention repo
-requirements installed:
+Expected terminal output:
+
+```text
+Wrote Fig. 14 plot PDFs:
+.../figures/prize_collected_vs_budget_pmarl_attention.pdf
+.../figures/training_time_vs_budget_pmarl_attention.pdf
+```
+
+## Reproduce The Data Pipeline
+
+These commands regenerate the raw rows, summary CSVs, and final PDFs from the included source.
+
+### 1. Java Baselines And P-MARL
+
+Compile the Java source and wrapper:
 
 ```bash
-python Deliverables/scripts/run_attention_batch.py --python /path/to/python-with-torch
+mkdir -p build/java
+javac -d build/java \
+  source/java-bctsp/Agent.java \
+  source/java-bctsp/CityNode.java \
+  source/java-bctsp/Graph.java \
+  source/java-bctsp/TableData.java \
+  source/java-bctsp/main.java \
+  scripts/java/ComparisonRunner.java
 ```
 
-Regenerate summary outputs:
+Run the Java comparison wrapper from the Java source directory, because the original Java code reads datasets from `src/` relative to its working directory:
 
 ```bash
-python Deliverables/scripts/generate_deliverables.py
+cd source/java-bctsp
+java -cp ../../build/java ComparisonRunner ../../raw/java_baselines.csv 20 4000,6000,8000,10000
+cd ../..
 ```
+
+This regenerates:
+
+- `raw/java_baselines.csv`
+
+### 2. Attention Model Rows
+
+Use a Python environment with the Attention dependencies installed. The Attention source requirements are kept separately from the lightweight plotting requirements:
+
+```bash
+python3 -m pip install -r source/attention-learn-to-route/requirements.txt
+python3 scripts/run_attention_batch.py --python python3
+```
+
+This regenerates:
+
+- `raw/attention_results.csv`
+- `raw/attention_eval_results.pkl`
+- `data/attention/attention_instances.pkl`
+- `data/attention/attention_instances.metadata.json`
+
+The generated pickle and metadata files are intermediate artifacts and are ignored by git.
+
+### 3. Summary Tables
+
+```bash
+python3 scripts/generate_deliverables.py
+```
+
+This regenerates:
+
+- `summary/comparison_raw_combined.csv`
+- `summary/comparison_summary_by_budget.csv`
+
+It may also create optional local audit files such as an Excel workbook, markdown summary, and older SVG plots. Those optional outputs are ignored so the repo stays focused on the final Fig. 14 deliverables.
+
+### 4. Final PDFs
+
+```bash
+python3 scripts/create_professor_plot_pdfs.py
+```
+
+This regenerates:
+
+- `figures/prize_collected_vs_budget_pmarl_attention.pdf`
+- `figures/training_time_vs_budget_pmarl_attention.pdf`
+- `figures/fig14_generation_notes.txt`
+
+## Plot Conventions
+
+- Error bars use 95% confidence intervals: `mean +/- t * std / sqrt(n)`.
+- `n = 20` for each budget and algorithm.
+- The prize plot y-axis label is `Prize Collected`.
+- The runtime plot y-axis label is `Training Time (s)`.
+- Runtime values are plotted in seconds.
+- The runtime plot uses a log-scale y-axis with superscript powers of 10.
+- Attention training time includes the fixed offline training/pretraining value used for the comparison.
+
+## Attention Training Time
+
+The Attention checkpoint metadata uses 100 training epochs. The training time included in the runtime figure is:
+
+```text
+100 epochs * 16 minutes 20 seconds per epoch = 98,000,000 ms = 98,000 s
+```
+
+That fixed training time is added to Attention inference time. Because the training time is fixed, Attention's confidence interval in the runtime plot only reflects inference-time variation.
+
+## Reproducibility Notes
+
+- P-MARL timing includes `learnQ()` plus `traverseQ()` in `scripts/java/ComparisonRunner.java`.
+- Greedy timing includes only the corresponding traversal.
+- Attention timing includes the fixed training/pretraining value plus local checkpoint inference time.
+- The Java P-MARL implementation uses random exploration during learning, so rerunning the Java wrapper can produce slightly different P-MARL rows.
+- Attention decoded routes are repaired by trimming visits from the end until the route fits the same Java-mile budget convention.

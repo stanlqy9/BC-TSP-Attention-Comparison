@@ -51,11 +51,11 @@ COLORS = {
 
 
 def build_parser():
-    root = Path(__file__).resolve().parents[2]
+    root = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser(description="Generate comparison deliverables from raw experiment CSV files.")
     parser.add_argument("--root", default=str(root))
-    parser.add_argument("--java-csv", default=str(root / "Deliverables" / "raw" / "java_baselines.csv"))
-    parser.add_argument("--attention-csv", default=str(root / "Deliverables" / "raw" / "attention_results.csv"))
+    parser.add_argument("--java-csv", default=str(root / "raw" / "java_baselines.csv"))
+    parser.add_argument("--attention-csv", default=str(root / "raw" / "attention_results.csv"))
     return parser
 
 
@@ -276,7 +276,7 @@ def write_markdown(path, summary_rows, manifest):
     lines.append("")
     lines.append("## Experiment Setup")
     lines.append("")
-    lines.append("- Dataset: `Capital_Cities.txt` from Chris's `BCPCTSP-handoff-code/src` folder.")
+    lines.append("- Dataset: `Capital_Cities.txt` from `source/java-bctsp/src`.")
     lines.append("- Instances: first 20 depot cities used by Chris's `TableData.generateRandomCities` convention.")
     lines.append("- Budgets: 4000, 6000, 8000, and 10000 miles.")
     lines.append("- Metric used for comparison: collected prize excluding depot prize.")
@@ -322,7 +322,7 @@ def write_manifest(path, manifest):
 def main():
     args = build_parser().parse_args()
     root = Path(args.root)
-    deliverables = root / "Deliverables"
+    deliverables = root
     raw_rows = []
     raw_rows.extend(read_rows(Path(args.java_csv)))
     raw_rows.extend(read_rows(Path(args.attention_csv)))
