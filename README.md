@@ -30,7 +30,7 @@ The final plot script reads:
 │   ├── attention_results.csv
 │   └── java_baselines.csv
 ├── scripts/
-│   ├── create_professor_plot_pdfs.py
+│   ├── create_figures.py
 │   ├── generate_deliverables.py
 │   ├── run_attention_batch.py
 │   └── java/ComparisonRunner.java
@@ -51,7 +51,7 @@ The final plot script reads:
 - `scripts/java/ComparisonRunner.java`: Java wrapper used to export Greedy/P-MARL rows to `raw/java_baselines.csv`.
 - `scripts/run_attention_batch.py`: Python wrapper used to convert the capital-city instances, run the Attention checkpoint, repair infeasible routes to the same Java-mile budget convention, and write `raw/attention_results.csv`.
 - `scripts/generate_deliverables.py`: combines raw Java and Attention rows into summary CSV files.
-- `scripts/create_professor_plot_pdfs.py`: generates the final professor-requested Fig. 14 PDFs.
+- `scripts/create_figures.py`: generates the final professor-requested Fig. 14 PDFs.
 
 Compiled Java classes, Python caches, and intermediate pickle files are intentionally excluded.
 
@@ -61,7 +61,7 @@ From the repository root:
 
 ```bash
 python3 -m pip install -r requirements.txt
-python3 scripts/create_professor_plot_pdfs.py
+python3 scripts/create_figures.py
 ```
 
 Expected terminal output:
@@ -137,7 +137,7 @@ It may also create optional local audit files such as an Excel workbook, markdow
 ### 4. Final PDFs
 
 ```bash
-python3 scripts/create_professor_plot_pdfs.py
+python3 scripts/create_figures.py
 ```
 
 This regenerates:
